@@ -23,9 +23,20 @@ app.get("/api/hello", function (req, res) {
 	res.json({ greeting: "hello API" });
 });
 
-// handle date
+// * handle empty string
+app.get("/api", function (req, res) {
+	const currentDate = new Date();
+	const utcDate = currentDate.toUTCString();
+	const milisecondsSinceEpoch = currentDate.getTime();
+	return res.json({
+		unix: milisecondsSinceEpoch,
+		utc: utcDate,
+	});
+});
+
+// * handle date
 app.get("/api/:date", function (req, res) {
-  // any non-integer in the string?
+	// any non-integer in the string?
 	for (const char of Array.from(req.params.date)) {
 		if (isNaN(parseInt(char, 10))) {
 			console.log(`${char} is not an integer.`);
