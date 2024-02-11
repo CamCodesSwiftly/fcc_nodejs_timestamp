@@ -36,25 +36,42 @@ app.get("/api", function (req, res) {
 
 // * handle date
 app.get("/api/:date", function (req, res) {
-	// any non-integer in the string?
-	for (const char of Array.from(req.params.date)) {
-		if (isNaN(parseInt(char, 10))) {
-			console.log(`${char} is not an integer.`);
-			return res.json({
-				error: "Invalid Date",
-			});
-		}
-
-		// When we reach this point, the string MUST be only integers
-		const miliseconds = parseInt(req.params.date, 10);
-		const date = new Date(miliseconds);
+	// is the input a valid date string?
+	// we can check this easily with Date.parse()
+	// if it returns nAn, then it is not valid and we'll return an error
+	if (!isNaN(Date.parse(req.params.date))) {
+		const timestamp = Date.parse(req.params.date);
+		const date = new Date(timestamp);
 		const utcDate = date.toUTCString();
-		console.log(date);
+		console.log(req.params.date, "this is a date string");
 		return res.json({
-			unix: miliseconds,
+			unix: timestamp,
 			utc: utcDate,
 		});
 	}
+
+	// any non-integer in the string?
+	const nonDigitRegex = /\D/g;
+	console.log(req.params.date.match(nonDigitRegex));
+	if (req.params.date.match(nonDigitRegex)) {
+		console.log(
+			req.params.date,
+			"this is no date string, and no timestamp"
+		);
+		return res.json({
+			error: "Invalid Date",
+		});
+	}
+
+	// When we reach this point, the string MUST be only integers
+	const timestamp = parseInt(req.params.date, 10);
+	const date = new Date(timestamp);
+	const utcDate = date.toUTCString();
+	console.log(req.params.date, "this is a timestamp");
+	return res.json({
+		unix: timestamp,
+		utc: utcDate,
+	});
 });
 
 // listen for requests :)
